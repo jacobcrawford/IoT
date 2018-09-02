@@ -57,32 +57,30 @@ http
         break;
       case "POST":
         res.writeHeader(200, { "Content-Type": "plain/text" });
-        data = readBody(req);
-        if (data.led == 1) {
-          led.write(1, function() {
-            res.end("LED turned on");
-          });
-        } else {
-          led.write(0, function() {
-            res.end("LED turned off");
-          });
-        }
-        break;
+	let body = [];
+  	req
+    	 .on("data", chunk => {
+      		body.push(chunk);
+    	})
+    	.on("end", () => {
+      		body = Buffer.concat(body).toString();
+      		// at this point, `body` has the entire request body stored in it as a string
+     		console.log(body)
+		var data = JSON.parse(body);
+        	if (data.led == 1) {
+          		led.write(1, function() {
+            		res.end("LED turned on");
+          		});
+        	} else {
+          		led.write(0, function() {
+            		res.end("LED turned off");
+          		});
+        	}
+      });
+	break;
     }
   })
   .listen(8585);
 
 console.log("Server started");
 
-function readBody(request) {
-  let body = [];
-  request
-    .on("data", chunk => {
-      body.push(chunk);
-    })
-    .on("end", () => {
-      body = Buffer.concat(body).toString();
-      // at this point, `body` has the entire request body stored in it as a string
-      return JSON.stringify(body);
-    });
-}
