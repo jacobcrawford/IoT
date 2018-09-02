@@ -1,18 +1,36 @@
 var sensorLib = require('node-dht-sensor');
+var onoff = require('onoff');
+
+var Gpio = onoff.Gpio,
+  led = new Gpio(4, 'out') //#B
+
 
 sensorLib.initialize(22, 12); //#A
 var interval = setInterval(function () { //#B
-  read();
+	
+  var hum = read();
+  if(hum > 50) {
+    led.write(1, function() { //#E
+    console.log("Changed LED state to on ");
+  });
+  }else{
+    led.write(0, function() { //#E
+    console.log("Changed LED state to off");
+  });
+}
 }, 2000);
 
 function read() {
   var readout = sensorLib.read(); //#C
   console.log('Temperature: ' + readout.temperature.toFixed(2) + 'C, ' + //#D
     'humidity: ' + readout.humidity.toFixed(2) + '%');
+  return readout.humidity.toFixed(2);
 };
 
 process.on('SIGINT', function () {
   clearInterval(interval);
+  led.writeSync(0); //#G
+  led.unexport();
   console.log('Bye, bye!');
   process.exit();
 });
