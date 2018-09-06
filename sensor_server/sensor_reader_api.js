@@ -43,7 +43,7 @@ process.on("SIGINT", function() {
 var http = require("http");
 http
   .createServer(function(req, res) {
-      res.setHeader('Access-Control-Allow-Origin', 'http://46.101.202.245/:1');
+      res.setHeader('Access-Control-Allow-Origin', 'http://46.101.202.245');
       switch (req.method) {
           case "GET":
               res.writeHeader(200, { "Content-Type": "application/json" });
