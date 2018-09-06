@@ -43,44 +43,45 @@ process.on("SIGINT", function() {
 var http = require("http");
 http
   .createServer(function(req, res) {
-    switch (req.method) {
-      case "GET":
-        res.writeHeader(200, { "Content-Type": "application/json" });
-        data = read();
-        res.end(
-          JSON.stringify({
-            led: led.readSync(),
-            hum: data.hum,
-            temp: data.temp
-          })
-        );
-        break;
-      case "POST":
-        res.writeHeader(200, { "Content-Type": "plain/text" });
-	let body = [];
-  	req
-    	 .on("data", chunk => {
-      		body.push(chunk);
-    	})
-    	.on("end", () => {
-      		body = Buffer.concat(body).toString();
-      		// at this point, `body` has the entire request body stored in it as a string
-     		console.log(body)
-		var data = JSON.parse(body);
-        	if (data.led == 1) {
-          		led.write(1, function() {
-            		res.end("LED turned on");
-          		});
-        	} else {
-          		led.write(0, function() {
-            		res.end("LED turned off");
-          		});
-        	}
-      });
-	break;
-    }
+      res.setHeader('Access-Control-Allow-Origin', 'http://46.101.202.245/:1');
+      switch (req.method) {
+          case "GET":
+              res.writeHeader(200, { "Content-Type": "application/json" });
+              data = read();
+              res.end(
+                  JSON.stringify({
+                      led: led.readSync(),
+                      hum: data.hum,
+                      temp: data.temp
+                  })
+              );
+              break;
+          case "POST":
+              res.writeHeader(200, { "Content-Type": "plain/text" });
+              let body = [];
+              req
+                  .on("data", chunk => {
+                      body.push(chunk);
+                  })
+                  .on("end", () => {
+                      body = Buffer.concat(body).toString();
+                      // at this point, `body` has the entire request body stored in it as a string
+                      console.log(body)
+                      var data = JSON.parse(body);
+                      if (data.led == 1) {
+                          led.write(1, function() {
+                              res.end("LED turned on");
+                          });
+                      } else {
+                          led.write(0, function() {
+                              res.end("LED turned off");
+                          });
+                      }
+                  });
+              break;
+      }
   })
-  .listen(8585);
+    .listen(8585);
 
 console.log("Server started");
 
