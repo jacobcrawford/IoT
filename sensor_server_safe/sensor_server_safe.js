@@ -45,7 +45,8 @@ var fs = require('fs');
 
 const options = {
     key:    fs.readFileSync("privatekey.pem"),
-    cert:   fs.readFileSync("certificate.pem")
+    cert:   fs.readFileSync("certificate.pem"),
+    passphrase: "1234"
 
 };
 

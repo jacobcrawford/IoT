@@ -3,14 +3,15 @@ var onoff = require("onoff");
 
 // The LED
 var Gpio = onoff.Gpio,
-  led = new Gpio(4, "out"); //#B
+  led = new Gpio(4, "out");
 
+var port = 8585;
 // The humidity and temperature sensor
 sensorLib.initialize(22, 12);
 
 // Read the humidity and temperature from the sensor.
 function read() {
-  var readout = sensorLib.read(); //#C
+  var readout = sensorLib.read();
   console.log(
     "Temperature: " +
     readout.temperature.toFixed(2) +
@@ -27,23 +28,19 @@ function read() {
 
 process.on("SIGINT", function() {
   clearInterval(interval);
-  led.writeSync(0); //#G
+  led.writeSync(0);
   led.unexport();
   console.log("Bye, bye!");
   process.exit();
 });
 
-//#A 22 is for DHT22/AM2302, 12 is the GPIO we connect to on the Pi
-//#B create an interval to read the values every 2 seconds
-//#C read the sensor values
-//#D readout contains two values: temperature and humidity
-
 // Start the server to handle the requests
 
 var http = require("http");
+
 http
   .createServer(function(req, res) {
-      res.setHeader('Access-Control-Allow-Origin', 'http://46.101.202.245/:1');
+      res.setHeader('Access-Control-Allow-Origin', 'http://46.101.202.245');
       switch (req.method) {
           case "GET":
               res.writeHeader(200, { "Content-Type": "application/json" });
@@ -66,9 +63,8 @@ http
                   .on("end", () => {
                       body = Buffer.concat(body).toString();
                       // at this point, `body` has the entire request body stored in it as a string
-                      console.log(body)
                       var data = JSON.parse(body);
-                      if (data.led == 1) {
+                      if (data.led === 1) {
                           led.write(1, function() {
                               res.end("LED turned on");
                           });
@@ -81,7 +77,7 @@ http
               break;
       }
   })
-    .listen(8585);
+    .listen(port);
 
-console.log("Server started");
+console.log("Server started. Listening on port:"+  port.toString());
 
